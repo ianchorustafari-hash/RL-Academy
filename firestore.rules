@@ -1,0 +1,65 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidUser(data) {
+      let requiredFields = ['uid', 'email', 'displayName', 'createdAt'];
+      let optionalFields = ['learnedMechanics', 'favoriteMaps', 'favoriteMechanics', 'rank', 'mainCar', 'favoriteMode'];
+      let allFields = requiredFields.concat(optionalFields);
+      
+      return data.keys().hasAll(requiredFields) &&
+             data.keys().hasOnly(allFields) &&
+             data.uid is string &&
+             data.email is string &&
+             data.displayName is string &&
+             data.createdAt is string &&
+             (!('learnedMechanics' in data) || data.learnedMechanics is list) &&
+             (!('favoriteMaps' in data) || data.favoriteMaps is list) &&
+             (!('favoriteMechanics' in data) || data.favoriteMechanics is list) &&
+             (!('rank' in data) || data.rank is string) &&
+             (!('mainCar' in data) || data.mainCar is string) &&
+             (!('favoriteMode' in data) || data.favoriteMode is string);
+    }
+
+    // User profiles
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidUser(request.resource.data);
+      allow update: if isOwner(userId) && isValidUser(request.resource.data);
+    }
+
+    // Public content (Read-only for authenticated users)
+    match /mechanics/{mechanicId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Only admin via console
+    }
+
+    match /trainingMaps/{mapId} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+    
+    match /hitboxGroups/{groupId} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+    
+    match /rankTips/{tipId} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+    
+    match /positioningGuides/{guideId} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+  }
+}

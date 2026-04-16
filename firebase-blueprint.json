@@ -1,0 +1,61 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Stores user progress and preferences",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "learnedMechanics": { "type": "array", "items": { "type": "string" } },
+        "favoriteMaps": { "type": "array", "items": { "type": "string" } },
+        "favoriteMechanics": { "type": "array", "items": { "type": "string" } },
+        "rank": { "type": "string" },
+        "mainCar": { "type": "string" },
+        "favoriteMode": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "displayName", "createdAt"]
+    },
+    "Mechanic": {
+      "title": "Game Mechanic",
+      "description": "A specific Rocket League mechanic",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "difficulty": { "enum": ["bajo", "medio", "alto", "pro"] },
+        "videoUrl": { "type": "string" }
+      }
+    },
+    "TrainingMap": {
+      "title": "Training Map",
+      "description": "A custom training pack",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "code": { "type": "string" },
+        "difficulty": { "enum": ["bajo", "medio", "alto", "pro"] },
+        "priority": { "enum": ["baja", "media", "alta"] },
+        "category": { "enum": ["objetivos", "aéreo", "control", "mecánicas", "defensa", "tiros"] }
+      }
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile and progress"
+    },
+    "/mechanics/{mechanicId}": {
+      "schema": "Mechanic",
+      "description": "List of mechanics"
+    },
+    "/trainingMaps/{mapId}": {
+      "schema": "TrainingMap",
+      "description": "List of training maps"
+    }
+  }
+}
